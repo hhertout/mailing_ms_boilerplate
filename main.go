@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"mailer_ms/router"
+	Router "mailer_ms/router"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -16,6 +16,6 @@ func main() {
 
 	r := gin.Default()
 
-	router.Routes(r)
+	Router.Routes(r)
 	r.Run()
 }
