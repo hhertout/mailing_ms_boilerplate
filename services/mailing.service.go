@@ -81,9 +81,10 @@ func (r *Request) SetHeaders() {
 
   switch r.method {
     case method.HTML:
+
     headers["Content-Type"] = "text/html; chartset=\"utf-8\""
     case method.TEXT:
-    headers["Content-Type"] = "text/text; chartset=\"utf-8\""
+    headers["Content-Type"] = "text/plain; chartset=\"utf-8\""
 }
 
   for k, v := range headers {
@@ -92,9 +93,15 @@ func (r *Request) SetHeaders() {
   r.headers += "\r\n"
 }
 
+func(r *Request) SetBody(body string) (*Request) {
+  r.method = method.TEXT
+  r.body = body
+
+  return r
+}
+
 func (r *Request) SendEmail() {
   r.SetHeaders()
-  fmt.Printf("headers => %s, body => %s", r.headers, r.body)
   message := r.headers + r.body
   err := smtp.SendMail(r.smtpUrl, r.plainAuth, r.from, r.to, []byte(message))
   if err != nil {
