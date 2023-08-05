@@ -1,5 +1,4 @@
-module github.com/hhertout/go_mailing_ws.git
-
+module mailer_ms
 go 1.20
 
 require (

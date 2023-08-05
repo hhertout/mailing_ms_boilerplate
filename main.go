@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
+	"mailer_ms/router"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hhertout/go_mailing_ws.git/router"
 	"github.com/joho/godotenv"
 )
 

@@ -1,8 +1,9 @@
 package router
 
 import (
+	"mailer_ms/controllers"
+
 	"github.com/gin-gonic/gin"
-	"github.com/hhertout/go_mailing_ws.git/controllers"
 )
 
 func Routes(r *gin.Engine) {
