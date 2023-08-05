@@ -11,7 +11,7 @@ import (
 )
 
 func HelloWorld(c *gin.Context) {
-  auth, smtpUrl := config.AuthSmtp()
+  auth, smtpUrl := config.SmtpAuthentification()
   from := os.Getenv("SMTP_FROM")
   to := []string{os.Getenv("SMTP_TO")}
 
@@ -40,3 +40,22 @@ func HelloWorld(c *gin.Context) {
     })
   }
 }
+
+func HelloWorldWithHtml(c *gin.Context) {
+  //auth, _ := config.SmtpAuthentification()
+
+  templateData := struct{
+    Name string
+    URL string
+  } {
+    Name: "toto",
+    URL: "http://go.dev",
+  }
+  r := config.NewRequest("Hello from go Controller", []string {"jane.doe@gmail.com"})
+  err := r.ParseHTMLTemplate("helloworld.html", templateData)
+  if err != nil {
+    log.Fatal(err)
+  }
+  r.SendEmail()
+}
+

@@ -8,4 +8,5 @@ import (
 
 func Routes(r *gin.Engine) {
 	r.GET("/ping", Controllers.HelloWorld)
+  r.GET("/pong", Controllers.HelloWorldWithHtml)
 }
