@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"mailer_ms/config"
+	GoMailer "mailer_ms/services"
 	"net/smtp"
 	"os"
 
@@ -42,8 +43,7 @@ func HelloWorld(c *gin.Context) {
 }
 
 func HelloWorldWithHtml(c *gin.Context) {
-  //auth, _ := config.SmtpAuthentification()
-
+  templatePath := "helloworld.html"
   templateData := struct{
     Name string
     URL string
@@ -51,11 +51,7 @@ func HelloWorldWithHtml(c *gin.Context) {
     Name: "toto",
     URL: "http://go.dev",
   }
-  r := config.NewRequest("Hello from go Controller", []string {"jane.doe@gmail.com"})
-  err := r.ParseHTMLTemplate("helloworld.html", templateData)
-  if err != nil {
-    log.Fatal(err)
-  }
-  r.SendEmail()
+  r := GoMailer.NewRequest("Hello from go Controller", []string {"jane.doe@gmail.com"})
+  r.ParseHTMLTemplate(templatePath, templateData).SendEmail()
 }
 
