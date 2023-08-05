@@ -1,8 +1,7 @@
 services:
   app:
-    build: './'
+    build: "./"
     env_file:
-      - './.env'
+      - "./.env"
     ports:
       - 4545:4545
-

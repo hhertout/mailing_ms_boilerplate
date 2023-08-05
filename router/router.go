@@ -1,4 +1,4 @@
-package router
+package Router
 
 import (
 	"mailer_ms/controllers"
@@ -7,5 +7,6 @@ import (
 )
 
 func Routes(r *gin.Engine) {
-	r.GET("/ping", controllers.Test)
+	r.GET("/ping", Controllers.HelloWorld)
+	r.GET("/pong", Controllers.HelloWorldWithHtml)
 }
