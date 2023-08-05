@@ -20,8 +20,8 @@ func HelloWorld(c *gin.Context) {
 
   body := "This text is send from my Go Api !!"
   message := ""
-  for key, value := range headers {
-    message += fmt.Sprintf("%s: %s \r\n", key, value)
+  for k, v := range headers {
+    message += fmt.Sprintf("%s: %s \r\n", k, v)
   }
   message += "\r\n" + body
 
