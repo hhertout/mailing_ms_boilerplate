@@ -21,18 +21,18 @@ type Request struct {
 	method    string
 	plainAuth smtp.Auth
 	smtpUrl   string
-	from      string
-	to        []string
-	subject   string
-	headers   string
-	body      string
+	From      string
+	To        []string
+	Subject   string
+	Headers   string
+	Body      string
 }
 
 func NewRequest(subject string, to []string) *Request {
 	r := &Request{
-		from:    os.Getenv("SMTP_FROM"),
-		to:      to,
-		subject: subject,
+		From:    os.Getenv("SMTP_FROM"),
+		To:      to,
+		Subject: subject,
 	}
 	r.method = method.TEXT
 	r.smtpAuthentification()
@@ -66,7 +66,7 @@ func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) *Request 
 	if err = t.Execute(buf, data); err != nil {
 		log.Fatal(err)
 	}
-	r.body = buf.String()
+	r.Body = buf.String()
 
 	return r
 }
@@ -74,9 +74,9 @@ func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) *Request 
 func (r *Request) SetHeaders() *Request {
 	headers := make(map[string]string)
 
-	headers["From"] = r.from
-	headers["To"] = fmt.Sprint(r.to)
-	headers["Subject"] = r.subject
+	headers["From"] = r.From
+	headers["To"] = fmt.Sprint(r.To)
+	headers["Subject"] = r.Subject
 	headers["MIME-Version"] = "1.0"
 
 	switch r.method {
@@ -87,26 +87,26 @@ func (r *Request) SetHeaders() *Request {
 	}
 
 	for k, v := range headers {
-		r.headers += fmt.Sprintf("%s: %s \r\n", k, v)
+		r.Headers += fmt.Sprintf("%s: %s \r\n", k, v)
 	}
-	r.headers += "\r\n"
+	r.Headers += "\r\n"
 
 	return r
 }
 
 func (r *Request) SetPlainTextBody(body string) *Request {
 	r.method = method.TEXT
-	r.body = body
+	r.Body = body
 
 	return r
 }
 
 func (r *Request) SendEmail() {
 	r.SetHeaders()
-	message := r.headers + r.body
-	err := smtp.SendMail(r.smtpUrl, r.plainAuth, r.from, r.to, []byte(message))
+	message := r.Headers + r.Body
+	err := smtp.SendMail(r.smtpUrl, r.plainAuth, r.From, r.To, []byte(message))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Email successfully sent to %s", r.to)
+	log.Printf("Email successfully sent to %s", r.To)
 }
