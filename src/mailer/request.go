@@ -1,11 +1,10 @@
-package GoMailer
+package mailer
 
 import (
 	"bytes"
 	"fmt"
 	"html/template"
 	"log"
-	"net/smtp"
 	"os"
 )
 
@@ -18,36 +17,24 @@ var method = struct {
 }
 
 type Request struct {
-	method    string
-	plainAuth smtp.Auth
-	smtpUrl   string
-	From      string
-	To        []string
-	Subject   string
-	Headers   string
-	Body      string
+	method  string
+	To      []string
+	Subject string
+	Headers string
+	Body    string
 }
 
 func NewRequest(subject string, to []string) *Request {
+	if len(to) == 0 {
+		to = []string{os.Getenv("SMTP_TO")}
+	}
+
 	r := &Request{
-		From:    os.Getenv("SMTP_FROM"),
 		To:      to,
 		Subject: subject,
 	}
 	r.method = method.TEXT
-	r.smtpAuthentification()
-
 	return r
-}
-
-func (r *Request) smtpAuthentification() {
-	username := os.Getenv("SMTP_USER")
-	password := os.Getenv("SMTP_PASSWORD")
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-
-	r.smtpUrl = smtpHost + ":" + smtpPort
-	r.plainAuth = smtp.PlainAuth("", username, password, smtpHost)
 }
 
 func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) *Request {
@@ -74,7 +61,7 @@ func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) *Request 
 func (r *Request) SetHeaders() *Request {
 	headers := make(map[string]string)
 
-	headers["From"] = r.From
+	headers["From"] = os.Getenv("SMTP_FROM")
 	headers["To"] = fmt.Sprint(r.To)
 	headers["Subject"] = r.Subject
 	headers["MIME-Version"] = "1.0"
@@ -99,14 +86,4 @@ func (r *Request) SetPlainTextBody(body string) *Request {
 	r.Body = body
 
 	return r
-}
-
-func (r *Request) SendEmail() {
-	r.SetHeaders()
-	message := r.Headers + r.Body
-	err := smtp.SendMail(r.smtpUrl, r.plainAuth, r.From, r.To, []byte(message))
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Email successfully sent to %s", r.To)
 }
