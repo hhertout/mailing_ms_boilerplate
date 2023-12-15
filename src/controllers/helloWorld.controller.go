@@ -15,6 +15,7 @@ func (a *ApiController) HelloWorldWithHtml(c *gin.Context) {
 		Name: "toto",
 		URL:  "http://go.dev",
 	}
+
 	r := mailer.NewRequest("Hello from go Controller", []string{"jane.doe@gmail.com"})
 	r.ParseHTMLTemplate(templatePath, templateData)
 
