@@ -7,14 +7,14 @@ import (
 )
 
 type Mailer struct {
-	From      string
+	from      string
 	smtpUrl   string
 	plainAuth smtp.Auth
 }
 
 func NewMailer() *Mailer {
 	m := &Mailer{
-		From: os.Getenv("SMTP_FROM"),
+		from: os.Getenv("SMTP_FROM"),
 	}
 	m.smtpAuthentication()
 
@@ -34,7 +34,7 @@ func (m *Mailer) smtpAuthentication() {
 func (m *Mailer) SendEmail(r *Request) {
 	r.SetHeaders()
 	message := r.Headers + r.Body
-	err := smtp.SendMail(m.smtpUrl, m.plainAuth, m.From, r.To, []byte(message))
+	err := smtp.SendMail(m.smtpUrl, m.plainAuth, m.from, r.To, []byte(message))
 	if err != nil {
 		log.Fatal(err)
 	}
