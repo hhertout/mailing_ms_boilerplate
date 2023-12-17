@@ -7,7 +7,7 @@ import (
 )
 
 func CORSMiddleware() gin.HandlerFunc {
-	if os.Getenv("ENV") == "dev" {
+	if os.Getenv("APP_ENV") == "dev" {
 		return func(c *gin.Context) {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")

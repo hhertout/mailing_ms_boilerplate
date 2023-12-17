@@ -10,6 +10,12 @@ type ApiController struct {
 	mailer *mailer.Mailer
 }
 
+type MailRequest[T interface{}] struct {
+	To      []string `json:"to"`
+	Subject string   `json:"subject"`
+	Body    T        `json:"body"`
+}
+
 func NewApiController() *ApiController {
 	return &ApiController{mailer: mailer.NewMailer()}
 }
