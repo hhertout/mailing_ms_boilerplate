@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 )
 
@@ -37,25 +36,26 @@ func NewRequest(subject string, to []string) *Request {
 	return r
 }
 
-func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) *Request {
+func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) (*Request, error) {
 	r.method = method.HTML
 	rootPath, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	t, err := template.ParseFiles(rootPath + "/templates/" + fileName)
 	if err != nil {
-		fmt.Printf("Invalid file path, giving : %s", rootPath+"/templates/"+fileName)
+		err := fmt.Errorf("invalid file path, giving : %s", rootPath+"/templates/"+fileName)
+		return nil, err
 	}
 
 	buf := new(bytes.Buffer)
 	if err = t.Execute(buf, data); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	r.Body = buf.String()
 
-	return r
+	return r, nil
 }
 
 func (r *Request) SetHeaders() *Request {
@@ -68,9 +68,9 @@ func (r *Request) SetHeaders() *Request {
 
 	switch r.method {
 	case method.HTML:
-		headers["Content-Type"] = "text/html; chartset=\"utf-8\""
+		headers["Content-Type"] = "text/html; charset=\"utf-8\""
 	case method.TEXT:
-		headers["Content-Type"] = "text/plain; chartset=\"utf-8\""
+		headers["Content-Type"] = "text/plain; charset=\"utf-8\""
 	}
 
 	for k, v := range headers {
