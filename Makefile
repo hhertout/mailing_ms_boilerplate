@@ -11,13 +11,19 @@ build:
 run:
 	@go run cmd/api/main.go
 
+# reset sqlite db
+db-reset:
+	@docker compose down && rm ./data/mailer.db && docker compose up -d
+
 # Create DB container
 dc-up:
-	docker compose up -d
+	@echo "Starting your application..."
+	@docker compose up -d
 
 # Shutdown DB container
 dc-down:
-	docker compose down
+	@echo "Closing..."
+	@docker compose down
 
 # Test the application
 test:
@@ -27,7 +33,7 @@ test:
 # Clean the binary
 clean:
 	@echo "Cleaning..."
-	@rm -f main
+	@go mod tidy
 
 # Live Reload
 watch:

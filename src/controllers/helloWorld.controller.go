@@ -26,7 +26,7 @@ func (a *ApiController) HelloWorldWithHtml(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "failed to parse html template with given variables",
+			"message": "Error: Failed to parse html template with given variables",
 		})
 		return
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"mailer_ms/cmd/database"
 	"mailer_ms/src/router"
 	"os"
 
@@ -15,6 +16,15 @@ func main() {
 		if err != nil {
 			log.Fatal("Error loading .env file")
 		}
+	}
+
+	db, err := database.Connect()
+	migration := database.NewMigration(db)
+	if err != nil {
+		log.Println("Failed to connect to db")
+	}
+	if err = migration.Migrate(); err != nil {
+		fmt.Printf("Failed to migrate db: %s", err)
 	}
 
 	r := router.Serve()
