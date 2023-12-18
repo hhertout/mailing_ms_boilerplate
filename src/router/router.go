@@ -15,6 +15,8 @@ func Serve() *gin.Engine {
 	r.Use(middlewares.ApiKeMiddleware())
 
 	r.GET("/ping", c.Ping)
+
+	r.GET("/api/mailer/list", c.GetMails)
 	r.POST("/api/mailer/helloworld", c.HelloWorldWithHtml)
 
 	return r

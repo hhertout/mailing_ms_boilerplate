@@ -2,12 +2,15 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"mailer_ms/src/mailer"
+	"mailer_ms/src/repository"
 	"net/http"
 )
 
 type ApiController struct {
-	mailer *mailer.Mailer
+	mailer     *mailer.Mailer
+	repository *repository.Repository
 }
 
 type MailRequest[T interface{}] struct {
@@ -17,10 +20,17 @@ type MailRequest[T interface{}] struct {
 }
 
 func NewApiController() *ApiController {
-	return &ApiController{mailer: mailer.NewMailer()}
+	newRepository, err := repository.NewRepository()
+	if err != nil {
+		log.Printf("Repositority initialisation failed : %s", err)
+	}
+	return &ApiController{
+		mailer:     mailer.NewMailer(),
+		repository: newRepository,
+	}
 }
 
-func (a *ApiController) Ping(c *gin.Context) {
+func (a ApiController) Ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})

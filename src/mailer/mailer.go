@@ -1,7 +1,6 @@
 package mailer
 
 import (
-	"log"
 	"net/smtp"
 	"os"
 )
@@ -31,12 +30,12 @@ func (m *Mailer) smtpAuthentication() {
 	m.plainAuth = smtp.PlainAuth("", username, password, smtpHost)
 }
 
-func (m *Mailer) SendEmail(r *Request) {
+func (m *Mailer) SendEmail(r *Request) error {
 	r.SetHeaders()
 	message := r.Headers + r.Body
 	err := smtp.SendMail(m.smtpUrl, m.plainAuth, m.from, r.To, []byte(message))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	log.Printf("Email successfully sent to %s", r.To)
+	return nil
 }
