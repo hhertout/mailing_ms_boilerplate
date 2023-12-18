@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . .
 
 RUN mkdir data
-RUN go mod download
 
+RUN go mod download
 
 CMD ["make", "watch"]
