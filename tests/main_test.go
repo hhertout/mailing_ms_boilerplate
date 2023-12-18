@@ -4,10 +4,15 @@ import (
 	"mailer_ms/src/router"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
 func TestPingRoute(t *testing.T) {
+	err := os.Setenv("APP_ENV", "dev")
+	if err != nil {
+		t.Errorf("Failed to set env")
+	}
 	r := router.Serve()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)
