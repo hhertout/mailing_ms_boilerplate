@@ -1,4 +1,4 @@
-package config
+package middlewares
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 )
 
 func CORSMiddleware() gin.HandlerFunc {
-	if os.Getenv("APP_ENV") == "dev" {
+	if os.Getenv("CORS_ENABLE") == "false" {
 		return func(c *gin.Context) {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
