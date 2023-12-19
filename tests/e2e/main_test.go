@@ -1,4 +1,4 @@
-package tests_test
+package e2e_test
 
 import (
 	"mailer_ms/src/router"

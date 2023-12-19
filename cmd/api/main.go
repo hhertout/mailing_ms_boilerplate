@@ -19,12 +19,16 @@ func main() {
 	}
 
 	db, err := database.Connect()
-	migration := database.NewMigration(db)
 	if err != nil {
 		log.Println("Failed to connect to db")
 	}
+	migration := database.NewMigration(db, "")
 	if err = migration.Migrate(); err != nil {
 		fmt.Printf("Failed to migrate db: %s", err)
+	}
+
+	if err = db.Close(); err != nil {
+		log.Println("Failed to close db connection after migration")
 	}
 
 	r := router.Serve()
