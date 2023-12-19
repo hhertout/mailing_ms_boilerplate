@@ -1,4 +1,4 @@
-package tests_test
+package integration_test
 
 import (
 	GoMailer "mailer_ms/src/mailer"
