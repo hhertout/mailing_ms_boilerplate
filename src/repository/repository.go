@@ -9,13 +9,19 @@ type Repository struct {
 	dbPool *sql.DB
 }
 
-func NewRepository() (*Repository, error) {
-	dbPool, err := database.Connect()
-	if err != nil {
-		return nil, err
-	}
+func NewRepository(customSource *sql.DB) (*Repository, error) {
+	if customSource != nil {
+		return &Repository{
+			customSource,
+		}, nil
+	} else {
+		dbPool, err := database.Connect()
+		if err != nil {
+			return nil, err
+		}
 
-	return &Repository{
-		dbPool,
-	}, nil
+		return &Repository{
+			dbPool,
+		}, nil
+	}
 }

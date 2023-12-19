@@ -1,13 +1,13 @@
 package repository
 
 type MailQuery struct {
-	ID      int    `db:"_id"`
-	Date    string `db:"date"`
-	To      string `db:"to"`
-	Subject string `db:"subject"`
-	Sent    bool   `db:"sent"`
-	Error   string `db:"error"`
-	Viewed  string `db:"viewed"`
+	ID      int     `db:"_id"`
+	Date    string  `db:"date"`
+	To      string  `db:"to"`
+	Subject string  `db:"subject"`
+	Sent    bool    `db:"sent"`
+	Error   *string `db:"error"`
+	Viewed  string  `db:"viewed"`
 }
 
 type MailSaveWithoutError struct {
@@ -70,9 +70,17 @@ func (r Repository) ListMail() ([]MailQuery, error) {
 }
 
 func (r Repository) convertToToString(args []string) string {
+	if len(args) == 0 {
+		return ""
+	}
+
+	if len(args) == 1 {
+		return args[0]
+	}
+
 	res := ""
 	for _, dest := range args {
-		res += dest
+		res = res + dest + ";"
 	}
 	return res
 }

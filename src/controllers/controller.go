@@ -20,7 +20,7 @@ type MailRequest[T interface{}] struct {
 }
 
 func NewApiController() *ApiController {
-	newRepository, err := repository.NewRepository()
+	newRepository, err := repository.NewRepository(nil)
 	if err != nil {
 		log.Printf("Repositority initialisation failed : %s", err)
 	}

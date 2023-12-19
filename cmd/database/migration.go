@@ -8,12 +8,14 @@ import (
 )
 
 type Migration struct {
-	dbPool *sql.DB
+	dbPool   *sql.DB
+	basePath string
 }
 
-func NewMigration(db *sql.DB) *Migration {
+func NewMigration(db *sql.DB, basePath string) *Migration {
 	return &Migration{
 		db,
+		basePath,
 	}
 }
 
@@ -26,7 +28,7 @@ func (m Migration) Migrate() error {
 
 func (m Migration) migrateFromFile(filename string) error {
 	workingDir, _ := os.Getwd()
-	fileOpen, err := os.Open(workingDir + "/cmd/database/migrations/" + filename)
+	fileOpen, err := os.Open(workingDir + m.basePath + "/cmd/database/migrations/" + filename)
 	if err != nil {
 		return err
 	}
