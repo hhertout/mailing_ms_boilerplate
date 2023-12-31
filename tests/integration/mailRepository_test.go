@@ -9,7 +9,7 @@ import (
 
 func TestWithoutError(t *testing.T) {
 	// Setup
-	err := os.Setenv("DB_URL", "./data/mailer_test.db")
+	err := os.Setenv("DB_URL", "./data/mailerTest.db")
 
 	if err != nil {
 		t.Error("Failed to set db env")
@@ -40,7 +40,7 @@ func TestWithoutError(t *testing.T) {
 
 func TestSaveWithError(t *testing.T) {
 	// Setup
-	err := os.Setenv("DB_URL", "./data/mailer_test.db")
+	err := os.Setenv("DB_URL", "./data/mailerTest.db")
 
 	if err != nil {
 		t.Error("Failed to set db env")

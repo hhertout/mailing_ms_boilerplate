@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"mailer_ms/cmd/database"
+	"mailer_ms/migrations"
 	"mailer_ms/src/router"
 	"os"
 
@@ -18,17 +18,10 @@ func main() {
 		}
 	}
 
-	db, err := database.Connect()
-	if err != nil {
-		log.Println("Failed to connect to db")
-	}
-	migration := database.NewMigration(db, "")
-	if err = migration.Migrate(); err != nil {
-		fmt.Printf("Failed to migrate db: %s", err)
-	}
-
-	if err = db.Close(); err != nil {
-		log.Println("Failed to close db connection after migration")
+	m := migrations.NewMigration(nil, "/")
+	if err := m.MigrateAll(); err != nil {
+		log.Println(err)
+		return
 	}
 
 	r := router.Serve()
