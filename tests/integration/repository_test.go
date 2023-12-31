@@ -2,7 +2,8 @@ package integration_test
 
 import (
 	"database/sql"
-	"mailer_ms/cmd/database"
+	"mailer_ms/migrations"
+	"mailer_ms/src/database"
 	"mailer_ms/src/repository"
 	"os"
 	"testing"
@@ -19,8 +20,8 @@ func connect() (*sql.DB, error) {
 		return nil, err
 	}
 
-	migration := database.NewMigration(db, "/../..")
-	if err = migration.Migrate(); err != nil {
+	migration := migrations.NewMigration(db, "/../../")
+	if err = migration.MigrateAll(); err != nil {
 		return nil, err
 	}
 

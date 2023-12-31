@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"mailer_ms/cmd/database"
+	"mailer_ms/src/database"
 )
 
 type Repository struct {

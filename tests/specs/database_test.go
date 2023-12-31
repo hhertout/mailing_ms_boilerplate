@@ -2,7 +2,8 @@ package specs
 
 import (
 	"fmt"
-	"mailer_ms/cmd/database"
+	"mailer_ms/migrations"
+	"mailer_ms/src/database"
 	"os"
 	"testing"
 )
@@ -16,13 +17,11 @@ func TestDatabase(t *testing.T) {
 
 	db, errConnect := database.Connect()
 	if errConnect != nil {
-		fmt.Println("Failed to connect to db")
-		fmt.Println(err)
 		t.Error("Failed to connect to db")
 	}
 
-	migration := database.NewMigration(db, "/../..")
-	if errMigration := migration.Migrate(); errMigration != nil {
+	migration := migrations.NewMigration(db, "/../../")
+	if errMigration := migration.MigrateAll(); errMigration != nil {
 		fmt.Println(errMigration)
 		t.Errorf("Failed to migrate db: %s", errMigration)
 	}
