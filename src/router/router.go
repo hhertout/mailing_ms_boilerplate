@@ -19,5 +19,8 @@ func Serve() *gin.Engine {
 	r.GET("/api/mailer/list", c.GetMails)
 	r.POST("/api/mailer/helloworld", c.HelloWorldWithHtml)
 
+	r.POST("/api/mailer/password-updated", c.UpdatePasswordConfirmation)
+	r.POST("/api/mailer/password-reset", c.PasswordReinitialisation)
+
 	return r
 }
