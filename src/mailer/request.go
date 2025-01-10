@@ -16,11 +16,12 @@ var method = struct {
 }
 
 type Request struct {
-	method  string
-	To      []string
-	Subject string
-	Headers string
-	Body    string
+	method      string
+	To          []string
+	Subject     string
+	Headers     string
+	Attachement []string
+	Body        string
 }
 
 func NewRequest(subject string, to []string) *Request {
@@ -79,6 +80,17 @@ func (r *Request) SetHeaders() *Request {
 	r.Headers += "\r\n"
 
 	return r
+}
+
+func (r *Request) AddAttachement(filePath string) error {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		fmt.Println("File does not exist")
+		panic(err)
+	}
+
+	r.Attachement = append(r.Attachement, filePath)
+
+	return nil
 }
 
 func (r *Request) SetPlainTextBody(body string) *Request {
