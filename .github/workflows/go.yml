@@ -17,6 +17,12 @@ jobs:
         with:
           go-version: 1.20.3
       - name: Tests
+        env:
+          SMTP_USER: user
+          SMTP_PASSWORD: password
+          SMTP_HOST: test.io
+          SMTP_PORT: 465
+          SMTP_FROM: noreply@test.com
         run: go test ./tests/...
 
   build:
