@@ -2,8 +2,8 @@ package specs
 
 import (
 	"fmt"
+	"mailer_ms/internal/infra/database"
 	"mailer_ms/migrations"
-	"mailer_ms/src/database"
 	"os"
 	"testing"
 )

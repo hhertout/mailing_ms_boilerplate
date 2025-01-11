@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 	"log"
-	"mailer_ms/src/database"
+	"mailer_ms/internal/infra/database"
 	"os"
 	"sort"
 	"strings"

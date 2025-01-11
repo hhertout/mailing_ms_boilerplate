@@ -1,7 +1,7 @@
 package integration_test
 
 import (
-	GoMailer "mailer_ms/src/mailer"
+	GoMailer "mailer_ms/pkg/mailer"
 	"os"
 	"testing"
 )

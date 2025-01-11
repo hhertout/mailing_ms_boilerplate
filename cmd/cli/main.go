@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"mailer_ms/src/mailer"
+	"mailer_ms/pkg/mailer"
 	"os"
 	"strings"
 	"time"
@@ -14,6 +14,10 @@ import (
 )
 
 func main() {
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	s.Start()
+	s.Prefix = "⌛ Loading... retrieving email configuration"
+
 	from := flag.String("from", "", "sender email address")
 	to := flag.String("to", "", "receiver email address, separated by comma")
 	subject := flag.String("subject", "", "email subject")
@@ -33,9 +37,7 @@ func main() {
 		"subject": subject,
 	})
 
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 	s.Prefix = fmt.Sprintf("⌛ Sending email from %s to %s...", *from, *to)
-	s.Start()
 	time.Sleep(2 * time.Second)
 
 	err := godotenv.Load()
@@ -75,7 +77,7 @@ func main() {
 	}
 
 	s.Stop()
-	fmt.Println("✅ Email sent successfully")
+	fmt.Printf("✅ Email sent successfully to %s\n", *to)
 }
 
 func checkFlags(requiredFlags map[string]*string) {

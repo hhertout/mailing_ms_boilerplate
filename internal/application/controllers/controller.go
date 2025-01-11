@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
-	"mailer_ms/src/mailer"
-	"mailer_ms/src/repository"
+	"mailer_ms/internal/infra/repository"
+	"mailer_ms/pkg/mailer"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ApiController struct {

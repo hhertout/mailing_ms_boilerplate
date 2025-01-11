@@ -2,7 +2,7 @@ package integration_test
 
 import (
 	"errors"
-	"mailer_ms/src/repository"
+	"mailer_ms/internal/infra/repository"
 	"os"
 	"testing"
 )

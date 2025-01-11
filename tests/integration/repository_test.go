@@ -2,9 +2,9 @@ package integration_test
 
 import (
 	"database/sql"
+	"mailer_ms/internal/infra/database"
+	"mailer_ms/internal/infra/repository"
 	"mailer_ms/migrations"
-	"mailer_ms/src/database"
-	"mailer_ms/src/repository"
 	"os"
 	"testing"
 )

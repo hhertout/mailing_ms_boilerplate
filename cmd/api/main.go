@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"mailer_ms/internal/application/router"
 	"mailer_ms/migrations"
-	"mailer_ms/src/router"
 	"os"
 
 	"github.com/joho/godotenv"

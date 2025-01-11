@@ -1,7 +1,7 @@
 package e2e_test
 
 import (
-	"mailer_ms/src/router"
+	"mailer_ms/internal/application/router"
 	"net/http"
 	"net/http/httptest"
 	"os"
