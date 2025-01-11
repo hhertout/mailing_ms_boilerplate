@@ -11,6 +11,9 @@ build:
 run:
 	@go run cmd/api/main.go
 
+cli:
+	@go build -o tmp/cli cmd/cli/main.go
+
 # reset sqlite db
 db-reset:
 	@docker compose down && rm ./data/mailer.db && docker compose up -d

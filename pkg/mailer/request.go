@@ -2,7 +2,6 @@ package mailer
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"html/template"
 	"os"
@@ -38,18 +37,10 @@ func NewRequest(subject string, to []string) *Request {
 	return r
 }
 
-func (r *Request) ParseStringTemplate(tmpl embed.FS, fileName string, data interface{}) (*Request, error) {
-	t, err := template.New("email").ParseFS(tmpl, fileName)
-	if err != nil {
-		return nil, err
-	}
+func (r *Request) AddTemplateFromString(tmpl string) *Request {
+	r.Body = tmpl
 
-	buf := new(bytes.Buffer)
-	if err = t.Execute(buf, data); err != nil {
-		return nil, err
-	}
-
-	return r, nil
+	return r
 }
 
 func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) (*Request, error) {

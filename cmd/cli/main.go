@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"mailer_ms/pkg/mailer"
+	"mailer_ms/pkg/mailer/static"
 	"os"
 	"strings"
 	"time"
@@ -22,7 +23,6 @@ func main() {
 	to := flag.String("to", "", "receiver email address, separated by comma")
 	subject := flag.String("subject", "", "email subject")
 	attachement := flag.String("attachement", "", "attachement file path, separated by comma")
-	defaultTemplate := "defaults.html"
 
 	flag.Parse()
 
@@ -46,8 +46,8 @@ func main() {
 	}
 
 	receivers := strings.Split(*to, ",")
-	r := mailer.NewRequest(*subject, receivers)
-	_, err = r.ParseHTMLTemplate(defaultTemplate, nil)
+	r := mailer.NewRequest(*subject, receivers).AddTemplateFromString(static.DefaultsTemplate)
+
 	if err != nil {
 		fmt.Println("Error parsing template")
 		panic(err)
@@ -77,7 +77,7 @@ func main() {
 	}
 
 	s.Stop()
-	fmt.Printf("✅ Email sent successfully to %s\n", *to)
+	fmt.Printf("✅ Email sent successfully to %s\n", strings.Join(strings.Split(*to, ","), ", "))
 }
 
 func checkFlags(requiredFlags map[string]*string) {
