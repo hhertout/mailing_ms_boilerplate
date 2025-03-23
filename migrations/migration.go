@@ -16,6 +16,16 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	POSTGRES = "postgres"
+	SQLITE   = "sqlite"
+	MYSQL    = "mysql"
+)
+
+const (
+	DB_KIND = SQLITE
+)
+
 // Migration represents a database migration with a connection pool and a base path for migration files.
 // Base path is the path to the directory containing the migration files from /migrations.
 // DbPool is the connection pool to the database.
@@ -72,16 +82,19 @@ func (m *Migration) MigrateAll() error {
 	m.dbPool = db
 
 	if err := m.createMigrationTable(); err != nil {
+		m.logger.Sugar().DPanicf(err.Error())
 		return errors.New("failed to create migration table")
 	}
 
 	migrationFiles, err := m.GetMigrationFiles(m.basePath)
 	if err != nil {
+		m.logger.Sugar().DPanicf(err.Error())
 		return errors.New("failed to retrieve migration files")
 	}
 
 	migrationAlreadyExecuted, err := m.getExecutedMigrations()
 	if err != nil {
+		m.logger.Sugar().DPanicf(err.Error())
 		return errors.New("failed to retrieve executed migrations")
 	}
 
@@ -98,10 +111,18 @@ func (m *Migration) MigrateAll() error {
 					return err
 				}
 				// Save the executed migration
-				_, err = m.dbPool.Exec("INSERT INTO go_migrations.migration (filename, migrated_at) VALUES ($1, $2)", f, time.Now())
-				if err != nil {
-					return err
+				if DB_KIND == POSTGRES {
+					_, err = m.dbPool.Exec("INSERT INTO go_migrations.migration (filename, migrated_at) VALUES ($1, $2)", f, time.Now())
+					if err != nil {
+						return err
+					}
+				} else {
+					_, err = m.dbPool.Exec("INSERT INTO migration (filename, migrated_at) VALUES ($1, $2)", f, time.Now())
+					if err != nil {
+						return err
+					}
 				}
+
 				m.logger.Sugar().Infof("✅ Migrated file: %v", f)
 			}
 		}
@@ -130,9 +151,9 @@ func (m *Migration) migrateFromFile(filename string) error {
 	}
 
 	queries := string(content)
-	queriesSplit := strings.Split(queries, "--")
+	queriesSplit := strings.SplitSeq(queries, "--")
 
-	for _, query := range queriesSplit {
+	for query := range queriesSplit {
 		if strings.TrimSpace(query) == "" {
 			continue
 		}
@@ -173,23 +194,37 @@ func (m *Migration) GetMigrationFiles(basePath string) ([]string, error) {
 
 // Create migration table
 func (m *Migration) createMigrationTable() error {
-	//create migration schema if not exists
-	_, err := m.dbPool.Exec(`
-        CREATE SCHEMA IF NOT EXISTS go_migrations;
-    `)
-	if err != nil {
-		return err
-	}
+	if DB_KIND == POSTGRES {
+		// create migration schema if not exists
+		_, err := m.dbPool.Exec(`
+			CREATE SCHEMA IF NOT EXISTS go_migrations;
+		`)
+		if err != nil {
+			return err
+		}
 
-	_, err = m.dbPool.Exec(`
-        CREATE TABLE IF NOT EXISTS go_migrations.migration (
-            id SERIAL PRIMARY KEY,
-            filename VARCHAR(255) NOT NULL,
-            migrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    `)
-	if err != nil {
-		return err
+		_, err = m.dbPool.Exec(`
+			CREATE TABLE IF NOT EXISTS go_migrations.migration (
+				id SERIAL PRIMARY KEY,
+				filename VARCHAR(255) NOT NULL,
+				migrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+			);
+		`)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := m.dbPool.Exec(`
+		CREATE TABLE IF NOT EXISTS migration (
+			id SERIAL PRIMARY KEY,
+			filename VARCHAR(255) NOT NULL,
+			migrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);
+		`)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -199,17 +234,32 @@ func (m *Migration) createMigrationTable() error {
 func (m *Migration) getExecutedMigrations() ([]string, error) {
 	var res []string
 
-	rows, err := m.dbPool.Query("SELECT filename FROM go_migrations.migration")
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		var filename string
-		if err := rows.Scan(&filename); err != nil {
+	if DB_KIND == POSTGRES {
+		rows, err := m.dbPool.Query("SELECT filename FROM go_migrations.migration")
+		if err != nil {
 			return nil, err
 		}
-		res = append(res, filename)
+
+		for rows.Next() {
+			var filename string
+			if err := rows.Scan(&filename); err != nil {
+				return nil, err
+			}
+			res = append(res, filename)
+		}
+	} else {
+		rows, err := m.dbPool.Query("SELECT filename FROM migration")
+		if err != nil {
+			return nil, err
+		}
+
+		for rows.Next() {
+			var filename string
+			if err := rows.Scan(&filename); err != nil {
+				return nil, err
+			}
+			res = append(res, filename)
+		}
 	}
 
 	return res, nil

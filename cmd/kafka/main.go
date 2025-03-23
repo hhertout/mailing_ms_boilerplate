@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-
-	"mailer_ms/internal/application/api/router"
 	"mailer_ms/migrations"
 	"os"
 
@@ -28,16 +25,7 @@ func main() {
 
 	m := migrations.NewMigration("/", logger)
 	if err := m.MigrateAll(); err != nil {
-		logger.Sugar().Errorf("%v", err)
-		return
-	}
-
-	r := router.Serve()
-	log.Printf("📡 Server start on port %s \n", os.Getenv("PORT"))
-	if err := r.Run(); err != nil {
-		fmt.Println("Error on running server")
-		fmt.Printf("Error: %s", err)
-
+		log.Println(err)
 		return
 	}
 }

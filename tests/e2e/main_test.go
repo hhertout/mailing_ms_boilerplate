@@ -1,7 +1,7 @@
 package e2e_test
 
 import (
-	"mailer_ms/internal/application/router"
+	"mailer_ms/internal/application/api/router"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestPingRoute(t *testing.T) {
-	err := os.Setenv("APP_ENV", "dev")
+	err := os.Setenv("GO_ENV", "development")
 	if err != nil {
 		t.Errorf("Failed to set env")
 	}

@@ -1,8 +1,8 @@
 package router
 
 import (
-	"mailer_ms/internal/application/controllers"
-	"mailer_ms/internal/application/middlewares"
+	"mailer_ms/internal/application/api/controllers"
+	"mailer_ms/internal/application/api/middlewares"
 
 	"github.com/gin-gonic/gin"
 )

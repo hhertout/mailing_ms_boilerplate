@@ -1,7 +1,7 @@
 package integration_test
 
 import (
-	"mailer_ms/internal/application/controllers"
+	"mailer_ms/internal/application/api/controllers"
 	"os"
 	"testing"
 )
