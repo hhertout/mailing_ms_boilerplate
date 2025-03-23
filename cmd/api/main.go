@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -18,7 +19,13 @@ func main() {
 		}
 	}
 
-	m := migrations.NewMigration(nil, "/")
+	logger, _ := zap.NewProduction()
+	if os.Getenv("GO_ENV") == "development" {
+		logger, _ = zap.NewDevelopment()
+	}
+	defer logger.Sync()
+
+	m := migrations.NewMigration("/", logger)
 	if err := m.MigrateAll(); err != nil {
 		log.Println(err)
 		return

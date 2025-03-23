@@ -8,8 +8,10 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.19
 )
 
+require go.uber.org/multierr v1.10.0 // indirect
+
 require (
-	github.com/briandowns/spinner v1.23.1 // indirect
+	github.com/briandowns/spinner v1.23.1
 	github.com/bytedance/sonic v1.10.0-rc3 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
@@ -30,6 +32,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
+	go.uber.org/zap v1.27.0
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

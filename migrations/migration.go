@@ -1,39 +1,48 @@
 package migrations
 
+// Caution: each migration query must be separated by a double dash (--) in the migration file.
+
 import (
 	"database/sql"
 	"errors"
 	"io"
-	"log"
 	"mailer_ms/internal/infra/database"
 	"os"
+	"slices"
 	"sort"
 	"strings"
+	"time"
+
+	"go.uber.org/zap"
 )
 
+// Migration represents a database migration with a connection pool and a base path for migration files.
+// Base path is the path to the directory containing the migration files from /migrations.
+// DbPool is the connection pool to the database.
+//
+// @Caution: each migration query must be separated by a double dash (--) in the migration file.
 type Migration struct {
 	dbPool   *sql.DB
 	basePath string
+	logger   *zap.Logger
 }
 
-func NewMigration(customDbPool *sql.DB, basePath string) *Migration {
-	if customDbPool == nil {
-		db, err := database.Connect()
-		if err != nil {
-			panic("failed to connect to db")
-		}
-		return &Migration{
-			db,
-			basePath,
-		}
-	} else {
-		return &Migration{
-			customDbPool,
-			basePath,
-		}
+// NewMigration creates a new instance of Migration with the given base path.
+// Returns a pointer to the newly created Migration.
+// Base path is the path to the directory containing the migration files from /migrations.
+func NewMigration(basePath string, logger *zap.Logger) *Migration {
+	return &Migration{
+		nil,
+		basePath,
+		logger,
 	}
 }
 
+// Migrate executes a migration from a specified file.
+// Connects to the database, runs the migration, and then closes the database connection.
+// Returns an error if any occurs during the process.
+//
+// @Caution: each migration query must be separated by a double dash (--) in the migration file.
 func (m *Migration) Migrate(filename string) error {
 	db, err := database.Connect()
 	if err != nil {
@@ -52,36 +61,61 @@ func (m *Migration) Migrate(filename string) error {
 	return nil
 }
 
+// MigrateAll executes all migration files found in the base path.
+// Connects to the database, runs all migrations, and then closes the database connection.
+// Returns an error if any occurs during the process.
 func (m *Migration) MigrateAll() error {
 	db, err := database.Connect()
 	if err != nil {
-		log.Println("Failed to connect to db")
+		return errors.New("failed to connect to db")
 	}
 	m.dbPool = db
+
+	if err := m.createMigrationTable(); err != nil {
+		return errors.New("failed to create migration table")
+	}
 
 	migrationFiles, err := m.GetMigrationFiles(m.basePath)
 	if err != nil {
 		return errors.New("failed to retrieve migration files")
 	}
+
+	migrationAlreadyExecuted, err := m.getExecutedMigrations()
+	if err != nil {
+		return errors.New("failed to retrieve executed migrations")
+	}
+
 	if len(migrationFiles) == 0 {
-		log.Println("No migration file found ! To add one, run 'make migration-generate'.")
+		m.logger.Sugar().Info("No migration file found! To add one, run 'make migration-generate'.")
 	} else {
 		for _, f := range migrationFiles {
-			err := m.migrateFromFile(f)
-			if err != nil {
-				return err
+			if slices.Contains(migrationAlreadyExecuted, f) {
+				m.logger.Sugar().Infof("⏭️ Migration file already executed: %s\n", f)
+				continue
+			} else {
+				err := m.migrateFromFile(f)
+				if err != nil {
+					return err
+				}
+				// Save the executed migration
+				_, err = m.dbPool.Exec("INSERT INTO go_migrations.migration (filename, migrated_at) VALUES ($1, $2)", f, time.Now())
+				if err != nil {
+					return err
+				}
+				m.logger.Sugar().Infof("✅ Migrated file: %v", f)
 			}
 		}
-		log.Println("Migration complete, all migration file are executed")
 	}
 
 	if err = m.dbPool.Close(); err != nil {
-		log.Println("Failed to close db connection after migration")
+		return errors.New("failed to close db connection after migration")
 	}
 
 	return nil
 }
 
+// migrateFromFile executes the SQL queries from a specified migration file.
+// Returns an error if any occurs during the process.
 func (m *Migration) migrateFromFile(filename string) error {
 	workingDir, _ := os.Getwd()
 	fileOpen, err := os.Open(workingDir + m.basePath + "/migrations/" + filename)
@@ -114,6 +148,8 @@ func (m *Migration) migrateFromFile(filename string) error {
 	return nil
 }
 
+// GetMigrationFiles retrieves all SQL migration files from the base path.
+// Returns a slice of file names and an error if any occurs during the process.
 func (m *Migration) GetMigrationFiles(basePath string) ([]string, error) {
 	var res []string
 	baseDir := "migrations"
@@ -131,6 +167,50 @@ func (m *Migration) GetMigrationFiles(basePath string) ([]string, error) {
 	}
 
 	sort.Strings(res)
+
+	return res, nil
+}
+
+// Create migration table
+func (m *Migration) createMigrationTable() error {
+	//create migration schema if not exists
+	_, err := m.dbPool.Exec(`
+        CREATE SCHEMA IF NOT EXISTS go_migrations;
+    `)
+	if err != nil {
+		return err
+	}
+
+	_, err = m.dbPool.Exec(`
+        CREATE TABLE IF NOT EXISTS go_migrations.migration (
+            id SERIAL PRIMARY KEY,
+            filename VARCHAR(255) NOT NULL,
+            migrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Retieve migration already executed
+func (m *Migration) getExecutedMigrations() ([]string, error) {
+	var res []string
+
+	rows, err := m.dbPool.Query("SELECT filename FROM go_migrations.migration")
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var filename string
+		if err := rows.Scan(&filename); err != nil {
+			return nil, err
+		}
+		res = append(res, filename)
+	}
 
 	return res, nil
 }

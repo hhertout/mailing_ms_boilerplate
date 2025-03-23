@@ -7,9 +7,17 @@ import (
 	"mailer_ms/migrations"
 	"os"
 	"testing"
+
+	"go.uber.org/zap"
 )
 
 func connect() (*sql.DB, error) {
+	logger, _ := zap.NewProduction()
+	if os.Getenv("GO_ENV") == "development" {
+		logger, _ = zap.NewDevelopment()
+	}
+	defer logger.Sync()
+
 	err := os.Setenv("DB_URL", "../../data/mailerTest.db")
 	if err != nil {
 		return nil, err
@@ -20,7 +28,7 @@ func connect() (*sql.DB, error) {
 		return nil, err
 	}
 
-	migration := migrations.NewMigration(db, "/../../")
+	migration := migrations.NewMigration("/../../", logger)
 	if err = migration.MigrateAll(); err != nil {
 		return nil, err
 	}
