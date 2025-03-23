@@ -12,12 +12,21 @@ import (
 	"strings"
 )
 
+// Mailer represents the email sender with SMTP configuration.
 type Mailer struct {
 	from      string
 	smtpUrl   string
 	plainAuth smtp.Auth
 }
 
+// MailRequest represents a generic email request with a body of any type.
+type MailRequest[T any] struct {
+	To      []string `json:"to"`
+	Subject string   `json:"subject"`
+	Body    T        `json:"body"`
+}
+
+// NewMailer creates a new Mailer instance and initializes SMTP authentication.
 func NewMailer() *Mailer {
 	m := &Mailer{
 		from: os.Getenv("SMTP_FROM"),
@@ -27,6 +36,7 @@ func NewMailer() *Mailer {
 	return m
 }
 
+// smtpAuthentication sets up the SMTP authentication for the Mailer.
 func (m *Mailer) smtpAuthentication() {
 	username := os.Getenv("SMTP_USER")
 	password := os.Getenv("SMTP_PASSWORD")
@@ -41,6 +51,7 @@ func (m *Mailer) smtpAuthentication() {
 	m.plainAuth = smtp.PlainAuth("", username, password, smtpHost)
 }
 
+// SendEmail sends a plain text email based on the provided Request.
 func (m *Mailer) SendEmail(r *Request) error {
 	r.SetHeaders()
 
@@ -52,6 +63,7 @@ func (m *Mailer) SendEmail(r *Request) error {
 	return nil
 }
 
+// SendMailWithAttachment sends an email with attachments based on the provided Request.
 func (m *Mailer) SendMailWithAttachment(r *Request) error {
 	var body bytes.Buffer
 	w := multipart.NewWriter(&body)
@@ -96,6 +108,7 @@ func (m *Mailer) SendMailWithAttachment(r *Request) error {
 	return nil
 }
 
+// parseAttachment adds a file attachment to the multipart writer.
 func (m *Mailer) parseAttachment(w *multipart.Writer, file string) error {
 	f, err := os.Open(file)
 	if err != nil {
@@ -103,7 +116,7 @@ func (m *Mailer) parseAttachment(w *multipart.Writer, file string) error {
 	}
 	defer f.Close()
 
-	// Lire le contenu du fichier
+	// Read the file content
 	fileData, err := io.ReadAll(f)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", file, err)

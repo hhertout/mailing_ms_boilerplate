@@ -15,6 +15,7 @@ var method = struct {
 	HTML: "html",
 }
 
+// Request represents an email request with necessary details.
 type Request struct {
 	method      string
 	To          []string
@@ -24,6 +25,8 @@ type Request struct {
 	Body        string
 }
 
+// NewRequest creates a new email request with the given subject and recipients.
+// If no recipients are provided, it defaults to the SMTP_TO environment variable.
 func NewRequest(subject string, to []string) *Request {
 	if len(to) == 0 {
 		to = []string{os.Getenv("SMTP_TO")}
@@ -37,12 +40,14 @@ func NewRequest(subject string, to []string) *Request {
 	return r
 }
 
+// AddTemplateFromString sets the email body to the provided template string.
 func (r *Request) AddTemplateFromString(tmpl string) *Request {
 	r.Body = tmpl
-
 	return r
 }
 
+// ParseHTMLTemplate parses an HTML template file and sets the email body.
+// It takes the template file name and data to be injected into the template.
 func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) (*Request, error) {
 	r.method = method.HTML
 	rootPath, err := os.Getwd()
@@ -65,6 +70,7 @@ func (r *Request) ParseHTMLTemplate(fileName string, data interface{}) (*Request
 	return r, nil
 }
 
+// SetHeaders sets the email headers based on the request details.
 func (r *Request) SetHeaders() *Request {
 	headers := make(map[string]string)
 
@@ -88,6 +94,8 @@ func (r *Request) SetHeaders() *Request {
 	return r
 }
 
+// AddAttachement adds a file attachment to the email request.
+// It takes the file path of the attachment.
 func (r *Request) AddAttachement(filePath string) error {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		fmt.Println("File does not exist")
@@ -95,13 +103,12 @@ func (r *Request) AddAttachement(filePath string) error {
 	}
 
 	r.Attachement = append(r.Attachement, filePath)
-
 	return nil
 }
 
+// SetPlainTextBody sets the email body to the provided plain text string.
 func (r *Request) SetPlainTextBody(body string) *Request {
 	r.method = method.TEXT
 	r.Body = body
-
 	return r
 }

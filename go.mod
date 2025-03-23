@@ -8,7 +8,10 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.19
 )
 
-require go.uber.org/multierr v1.10.0 // indirect
+require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+)
 
 require (
 	github.com/briandowns/spinner v1.23.1

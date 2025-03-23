@@ -11,8 +11,11 @@ build:
 run:
 	@go run cmd/api/main.go
 
-cli:
+build-cli:
 	@go build -o tmp/cli cmd/cli/main.go
+
+build-kafka:
+	@go build -o tmp/kafka cmd/kafka/main.go
 
 # reset sqlite db
 db-reset:

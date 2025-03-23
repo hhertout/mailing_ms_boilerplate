@@ -14,12 +14,6 @@ type ApiController struct {
 	repository *repository.Repository
 }
 
-type MailRequest[T interface{}] struct {
-	To      []string `json:"to"`
-	Subject string   `json:"subject"`
-	Body    T        `json:"body"`
-}
-
 func NewApiController() *ApiController {
 	newRepository, err := repository.NewRepository(nil)
 	if err != nil {
@@ -34,5 +28,20 @@ func NewApiController() *ApiController {
 func (a ApiController) Ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
+	})
+}
+
+func (a ApiController) GetMails(c *gin.Context) {
+	res, err := a.repository.ListMail()
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "internal server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mails": res,
 	})
 }

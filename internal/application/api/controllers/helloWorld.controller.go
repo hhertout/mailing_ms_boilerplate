@@ -1,19 +1,19 @@
 package controllers
 
 import (
-	"log"
 	"mailer_ms/pkg/mailer"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+type HelloWordTemplateData struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
 func (a ApiController) HelloWorldWithHtml(c *gin.Context) {
-	type data struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	}
-	var body MailRequest[data]
+	var body mailer.MailRequest[HelloWordTemplateData]
 
 	if err := c.BindJSON(&body); err != nil {
 		_ = a.repository.SaveWithError(body.To, body.Subject, err)
@@ -43,20 +43,5 @@ func (a ApiController) HelloWorldWithHtml(c *gin.Context) {
 	_ = a.repository.SaveWithoutError(body.To, body.Subject)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Email successfully sent",
-	})
-}
-
-func (a ApiController) GetMails(c *gin.Context) {
-	res, err := a.repository.ListMail()
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "internal server error",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"mails": res,
 	})
 }

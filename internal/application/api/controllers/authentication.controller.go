@@ -11,7 +11,7 @@ func (a ApiController) UpdatePasswordConfirmation(c *gin.Context) {
 	type data struct {
 		Email string `json:"email"`
 	}
-	var body MailRequest[data]
+	var body mailer.MailRequest[data]
 
 	if err := c.BindJSON(&body); err != nil {
 		_ = a.repository.SaveWithError(body.To, body.Subject, err)
@@ -48,7 +48,7 @@ func (a ApiController) PasswordReinitialisation(c *gin.Context) {
 	type data struct {
 		Password string `json:"password"`
 	}
-	var body MailRequest[data]
+	var body mailer.MailRequest[data]
 
 	if err := c.BindJSON(&body); err != nil {
 		_ = a.repository.SaveWithError(body.To, body.Subject, err)
